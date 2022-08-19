@@ -229,10 +229,6 @@ fn merge_sort<T, F>(v: &mut [T], mut is_less: F)
 where
     F: FnMut(&T, &T) -> bool,
 {
-    use core::num;
-
-    //TODO REMOVE
-    let mut num_merges = 0;
     // Slices of up to this length get sorted using insertion sort.
     const MAX_INSERTION: usize = 20;
     // Very short runs are extended using insertion sort to span at least this many elements.
@@ -314,7 +310,6 @@ where
                     buf.as_mut_ptr(),
                     &mut is_less,
                 );
-                num_merges += 1;
             }
             runs[r] = Run { start: left.start, len: left.len + right.len, power: right.power };
             runs.remove(r + 1);
@@ -362,8 +357,8 @@ where
 }
 
 pub fn sort<T>(slice: &mut [T])
-    where
-        T: Ord,
-    {
-        merge_sort(slice, |a, b| a.lt(b));
-    }
+where
+    T: Ord,
+{
+    merge_sort(slice, |a, b| a.lt(b));
+}
