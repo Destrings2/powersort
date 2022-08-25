@@ -1,4 +1,4 @@
-use std::fmt::{Display, Debug};
+use std::ptr;
 
 /// Given a sequence, and a start index, returns the number of elements that are strictly decreasing, 
 /// or weakly increasing, from the star&t index to the end of the sequence.
@@ -13,6 +13,11 @@ pub fn extend_run_right<T, F>(sequence: &[T], start: usize, is_less: &mut F) -> 
 where
     F: FnMut(&T, &T) -> bool
 {
+    // If the start index is the last element, return 1.
+    if start == sequence.len() - 1 {
+        return (1, true);
+    }
+
     // All runs has at least one element.
     let mut length = 1;
     let mut i = start + 1;
@@ -74,6 +79,16 @@ mod extend_run_right_tests {
         let (length, is_increasing) = extend_run_right(&sequence, 7, &mut is_less);
         assert_eq!(length, 5);
         assert!(!is_increasing);
+    }
+
+    #[test]
+    // Edge case: If the start index is the last element, return 1.
+    fn extend_run_right_4() {
+        let sequence = [1, 1, 2, 3, 4, 4, 5, 6, 7, 8, 9, 10];
+        let mut is_less = |a: &i32, b: &i32| a < b;
+        let (length, is_increasing) = extend_run_right(&sequence, sequence.len() - 1, &mut is_less);
+        assert_eq!(length, 1);
+        assert!(is_increasing);
     }
 }
 
@@ -153,7 +168,7 @@ mod node_power_tests {
 }
 
 /// Computes the required vector capacity for the stack used in PowerSort.
-fn capacity(n: usize) -> usize {
+pub fn capacity(n: usize) -> usize {
     (n as f64).log2() as usize + 1
 }
 
@@ -235,12 +250,106 @@ mod merge_tests {
     }
 }
 
+/// Inserts `v[0]` into the presorted sequence `v` so that the whole `v[..]` is sorted
+/// This is useful for extending runs.
+/// # Arguments
+/// v: slice of presorted elements for which the last element is not
+/// is_less: comparison function
+pub fn insert_sort<T, F>(v: &mut [T], is_less: &mut F)
+where
+    F: FnMut(&T, &T) -> bool,
+    T: Copy
+{
+    // We find the correct position to insert `v[0]`.
+    // Then we shift the sequence to make space for it and finally copy it
+    // in the hole
+    let n = v.len();
+    let last = v[n-1];
+
+    if v.len() >= 2 && is_less(&last, &v[n-2]) {
+        let n = v.len();
+
+        for i in 0..n-1 {
+            if is_less(&last, &v[i]) {
+                // Shift v[i..n-1] to v[i+1..n]
+                unsafe {
+                    ptr::copy_nonoverlapping(
+                        v.get_unchecked(i), 
+                        v.get_unchecked_mut(i + 1), 
+                        n-i-1
+                    );
+                }
+
+                // Copy the new element in the hole.
+                v[i] = last;
+                break;
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod insert_sort_test {
+    use super::insert_sort;
+
+    #[test]
+    fn insert_sort_test_1() {
+        let mut is_less = |a: &i32, b: &i32| a < b;
+        let mut v = vec![2, 3, 6, 7, 5, 4];
+
+        insert_sort(&mut v[..5], &mut is_less);
+        insert_sort(&mut v[..6], &mut is_less);
+
+        assert_eq!(v, vec![2, 3, 4, 5, 6, 7]);
+    }
+    
+    #[test]
+    fn insert_sort_test_2() {
+        let mut is_less = |a: &i32, b: &i32| a < b;
+        let mut v = vec![3, 2];
+
+        insert_sort(&mut v, &mut is_less);
+
+        assert_eq!(v, vec![2, 3]);
+    }
+}
+
+
+/// Sorts the sequence `v` using insertion sort.
+/// While insertion sort is O(n^2), it is faster than merge sort for small sequences.
+/// # Arguments
+/// - `v`: The sequence to sort.
+/// - `is_less`: The comparison function.
+pub fn insertion_sort<T, F>(v: &mut [T], mut is_less: F)
+where
+    F: FnMut(&T, &T) -> bool,
+    T: Copy
+{
+    let n = v.len();
+    for i in 1..=n {
+        insert_sort(&mut v[..i], &mut is_less);
+    }
+}
+
+/// TODO Write explanation
 pub fn power_sort<T, F>(v: &mut [T], mut is_less: F)
 where 
     F: FnMut(&T, &T) -> bool,
-    T: Copy + Debug
+    T: Copy
 {
+    // Runs less than this value are extended using insertion sort.
+    const MIN_RUN_LENGTH: usize = 10;
+    // Sequences less than this length are sorted using insertion sort.
+    const MAX_INSERTION: usize = 20;
+
     let n = v.len();
+    
+    // Use insertion sort for small sequences as it is faster.
+    if n < MAX_INSERTION {
+        insertion_sort(v, &mut is_less);
+        return;
+    }
+
     // Stack for storing runs.
     let mut runs: Vec<Run> = Vec::with_capacity(capacity(n));
 
@@ -252,13 +361,25 @@ where
         v[s1..s1+n1].reverse();
     }
 
+    // Extend the first run to the left until it is long enough.
+    while n1 < MIN_RUN_LENGTH && s1+n1 < n {
+        insert_sort(&mut v[s1..s1+n1+1], &mut is_less);
+        n1 += 1;
+    }
+
     // Look for runs and merge if possible.
     while s1 + n1 < n {
+        // Find second run.
         let s2 = s1 + n1;
-        let (n2, is_increasing) = extend_run_right(v, s2, &mut is_less);
+        let (mut n2, is_increasing) = extend_run_right(v, s2, &mut is_less);
 
         if !is_increasing {
             v[s2..s2+n2].reverse();
+        }
+        
+        while n1 < MIN_RUN_LENGTH && s2+n2 < n {
+            insert_sort(&mut v[s2..s2+n2+1], &mut is_less);
+            n2 += 1;
         }
 
         // Compute power between runs.
@@ -310,7 +431,7 @@ where
 
 pub fn sort<T>(v: &mut [T])
 where
-    T: Copy + Ord + Debug
+    T: Copy + Ord
 {
     power_sort(v,  |a, b| a < b);
 }

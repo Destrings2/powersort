@@ -1,7 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// Sorting
-////////////////////////////////////////////////////////////////////////////////
-
 use core::mem;
 use core::mem::size_of;
 use core::ptr;
@@ -83,7 +79,7 @@ where
 /// The two slices must be non-empty and `mid` must be in bounds. Buffer `buf` must be long enough
 /// to hold a copy of the shorter slice. Also, `T` must not be a zero-sized type.
 #[cfg(not(no_global_oom_handling))]
-unsafe fn merge<T, F>(v: &mut [T], mid: usize, buf: *mut T, is_less: &mut F)
+pub unsafe fn merge<T, F>(v: &mut [T], mid: usize, buf: *mut T, is_less: &mut F)
 where
     F: FnMut(&T, &T) -> bool,
 {
@@ -225,7 +221,7 @@ fn node_power(s1: usize, n1: usize, n2: usize, n: usize) -> u32 {
 ///
 /// The invariants ensure that the total running time is *O*(*n* \* log(*n*)) worst-case.
 #[cfg(not(no_global_oom_handling))]
-fn merge_sort<T, F>(v: &mut [T], mut is_less: F)
+pub fn merge_sort<T, F>(v: &mut [T], mut is_less: F)
 where
     F: FnMut(&T, &T) -> bool,
 {
@@ -316,7 +312,6 @@ where
         }
     }
 
-    println!("{:?}", runs);
     // Finally, exactly one run must remain in the stack.
     // debug_assert!(runs.len() == 1 && runs[0].start == 0 && runs[0].len == len);
 

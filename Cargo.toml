@@ -13,3 +13,19 @@ criterion = "0.3"
 [[bench]]
 name = "merge"
 harness = false
+
+[[bench]]
+name = "extend_run"
+harness = false
+
+[[bench]]
+name = "node_power"
+harness = false
+
+[[bench]]
+name = "powersort"
+harness = false
+
+[[bench]]
+name = "standard_library_sort"
+harness = false
