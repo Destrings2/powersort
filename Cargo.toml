@@ -29,3 +29,7 @@ harness = false
 [[bench]]
 name = "standard_library_sort"
 harness = false
+
+[[bench]]
+name = "merge_cost"
+harness = false

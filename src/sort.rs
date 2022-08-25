@@ -6,7 +6,7 @@ use core::ptr;
 ///
 /// This is the integral subroutine of insertion sort.
 #[cfg(not(no_global_oom_handling))]
-fn insert_head<T, F>(v: &mut [T], is_less: &mut F)
+pub fn insert_head<T, F>(v: &mut [T], is_less: &mut F)
 where
     F: FnMut(&T, &T) -> bool,
 {
@@ -188,7 +188,7 @@ where
 }
 
 // TODO Write explanation
-fn node_power(s1: usize, n1: usize, n2: usize, n: usize) -> u32 {
+pub fn node_power(s1: usize, n1: usize, n2: usize, n: usize) -> u32 {
     let mut a = 2 * s1 + n1;
     let mut b = a + n1 + n2;
     let mut power = 0u32;
