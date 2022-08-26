@@ -1,7 +1,7 @@
 use core::mem::size_of;
 use std::{fs::File, io::Write};
 
-use powersort::{sort::*, sequences::generate_m_runs};
+use powersort::{sort::*, sequences::generate_runs_with_average_length};
 
 pub fn power_sort<T, F>(v: &mut [T], mut is_less: F) -> usize
 where
@@ -71,7 +71,7 @@ where
                     buf.as_mut_ptr(),
                     &mut is_less,
                 );
-                merge_cost += left.len + right.len;
+                merge_cost += 1;
             }
             runs[r] = Run { start: left.start, len: left.len + right.len, power: right.power };
             runs.remove(r + 1);
@@ -165,7 +165,7 @@ where
                     buf.as_mut_ptr(),
                     &mut is_less,
                 );
-                merge_cost += left.len + right.len;
+                merge_cost += 1;
             }
             runs[r] = Run { start: left.start, len: left.len + right.len };
             runs.remove(r + 1);
@@ -204,12 +204,14 @@ fn main() {
 
     let mut is_less = |a: &i32, b: &i32| a < b;
 
-    for _ in 0..100 {
-        let mut sequence = generate_m_runs(100000000, 1000000);
+    for i in 0..100 {
+        println!("Loop {}", i);
+        let mut sequence = generate_runs_with_average_length(100000, 316);
 
+        println!("Sorting...");
         let power_cost = power_sort(&mut sequence.clone(), &mut is_less);
         let tim_cost = tim_sort(&mut sequence, &mut is_less);
-        
+
         power_costs.push(power_cost);
         tim_costs.push(tim_cost);
     }
@@ -217,6 +219,7 @@ fn main() {
     println!("{:?}", power_costs);
     println!("{:?}", tim_costs);
 
+    println!("Writing to file...");
     // Write the results to a file.
     let mut file = File::create("power_costs.txt").unwrap();
     for cost in power_costs {
