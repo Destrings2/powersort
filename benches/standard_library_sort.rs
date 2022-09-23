@@ -185,5 +185,5 @@ fn benchmark_standardsort_3(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(standard_sort_group, benchmark_standardsort_1, benchmark_standardsort_2, benchmark_standardsort_3);
+criterion_group!(standard_sort_group, benchmark_standardsort_2);
 criterion_main!(standard_sort_group);

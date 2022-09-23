@@ -33,3 +33,11 @@ harness = false
 [[bench]]
 name = "merge_cost"
 harness = false
+
+[[bench]]
+name = "type_sort"
+harness = false
+
+[[bench]]
+name = "sort_final"
+harness = false

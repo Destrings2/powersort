@@ -1,5 +1,5 @@
 use criterion::*;
-use powersort::{alternatives, powersort_alternatives};
+use powersort::{powersort_alternatives};
 use powersort::sequences::{generate_runs_with_average_length, generate_random_sequence, generate_timsort_drag};
 use powersort::powersort::power_sort;
 
