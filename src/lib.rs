@@ -3,7 +3,7 @@ pub mod sequences;
 pub mod alternatives;
 pub mod powersort_alternatives;
 pub mod powersort;
-pub mod sort_final;
+pub mod powersort_final;
 
 #[cfg(test)]
 mod demonstrations {

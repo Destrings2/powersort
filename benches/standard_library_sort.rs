@@ -37,12 +37,14 @@ where
             start -= 1;
             unsafe {
                 if is_less(v.get_unchecked(start + 1), v.get_unchecked(start)) {
-                    while start > 0 && is_less(v.get_unchecked(start), v.get_unchecked(start - 1)) {
+                    while start > 0 &&
+                    is_less(v.get_unchecked(start), v.get_unchecked(start - 1)) {
                         start -= 1;
                     }
                     v[start..end].reverse();
                 } else {
-                    while start > 0 && !is_less(v.get_unchecked(start), v.get_unchecked(start - 1))
+                    while start > 0 && 
+                    !is_less(v.get_unchecked(start), v.get_unchecked(start - 1))
                     {
                         start -= 1;
                     }

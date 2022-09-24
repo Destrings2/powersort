@@ -1,5 +1,5 @@
 use powersort::sequences::{generate_runs_with_average_length, generate_random_sequence};
-use powersort::sort_final::power_sort as merge_sort;
+use powersort::powersort_final::power_sort as merge_sort;
 use criterion::*;
 
 fn benchmark_finalsort_1(c: &mut Criterion) {
