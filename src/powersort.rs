@@ -331,7 +331,10 @@ where
     }
 }
 
-/// TODO Write explanation
+/// Sorts the sequence `v` using PowerSort.
+/// # Arguments
+/// - `v`: The sequence to sort.
+/// - `is_less`: The comparison function.
 pub fn power_sort<T, F>(v: &mut [T], mut is_less: F)
 where 
     F: FnMut(&T, &T) -> bool,
@@ -457,7 +460,7 @@ mod powesort_tests {
     }
 
     #[test]
-    // Test 50 runs.
+    // Test 500 runs.
     fn power_sort_test_3() {
         use crate::sequences::generate_m_runs;
 

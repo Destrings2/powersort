@@ -187,7 +187,8 @@ where
     }
 }
 
-// TODO Write explanation
+/// Calculates the expected depth of the node in a nearly optimal merge tree.
+/// See Munro & Wild "Nearly-Optimal Mergesorts" for details.
 pub fn node_power(s1: usize, n1: usize, n2: usize, n: usize) -> u32 {
     let mut a = 2 * s1 + n1;
     let mut b = a + n1 + n2;
@@ -315,21 +316,11 @@ where
     // Finally, exactly one run must remain in the stack.
     // debug_assert!(runs.len() == 1 && runs[0].start == 0 && runs[0].len == len);
 
-    // TODO Rewrite comment
     // Examines the stack of runs and identifies the next pair of runs to merge. More specifically,
     // if `Some(r)` is returned, that means `runs[r]` and `runs[r + 1]` must be merged next. If the
     // algorithm should continue building a new run instead, `None` is returned.
     //
-    // TimSort is infamous for its buggy implementations, as described here:
-    // http://envisage-project.eu/timsort-specification-and-verification/
-    //
-    // The gist of the story is: we must enforce the invariants on the top four runs on the stack.
-    // Enforcing them on just top three is not sufficient to ensure that the invariants will still
-    // hold for *all* runs in the stack.
-    //
-    // This function correctly checks invariants for the top four runs. Additionally, if the top
-    // run starts at index 0, it will always demand a merge operation until the stack is fully
-    // collapsed, in order to complete the sort.
+    // Uses PowerSort merge rules to identify the next pair of runs to merge.
     #[inline]
     fn collapse(runs: &[Run]) -> Option<usize> {
         let n = runs.len();

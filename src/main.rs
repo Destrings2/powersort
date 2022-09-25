@@ -13,6 +13,7 @@ fn main() {
         clone.sort();
 
         println!("(flawed) Power sort...");
-        merge_sort(&mut sequence, is_less)
+        merge_sort(&mut sequence, is_less);
+        assert_eq!(sequence, clone);
     }
 }
